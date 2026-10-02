@@ -1,0 +1,77 @@
+name: Build LeonardAI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Get LeonardAI
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build LeonardAI for Windows
+        run: >
+          pyinstaller
+          --noconfirm
+          --windowed
+          --name LeonardAI
+          --add-data "models;models"
+          --collect-all mediapipe
+          app.py
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: LeonardAI-Windows
+          path: dist/LeonardAI/
+
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Get LeonardAI
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build LeonardAI for macOS
+        run: >
+          pyinstaller
+          --noconfirm
+          --windowed
+          --name LeonardAI
+          --add-data "models:models"
+          --collect-all mediapipe
+          app.py
+
+      - name: Upload macOS build
+        uses: actions/upload-artifact@v4
+        with:
+          name: LeonardAI-macOS
+          path: dist/LeonardAI.app
